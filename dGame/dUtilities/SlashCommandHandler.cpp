@@ -240,6 +240,8 @@ void SlashCommandHandler::HandleChatCommand(const std::u16string& command, Entit
 			if (item->GetSlot() != i) {
 				inv->MoveStack(item, eInventoryType::ITEMS, i);
 
+				GameMessages::SendMoveItemInInventory(entity,  eInventoryType::ITEMS, item->GetId(), i);
+
 				message << "Item name " << object.name << "\n" << "Moved to slot " << std::to_string(i) << "\n";
 				message << "-----------------------------------\n";
 			}
