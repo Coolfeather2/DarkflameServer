@@ -205,6 +205,52 @@ void SlashCommandHandler::HandleChatCommand(const std::u16string& command, Entit
 		}
 	}
 
+	if (chatCommand == "invsort") {
+		InventoryComponent* inv = static_cast<InventoryComponent*>(entity->GetComponent(eReplicaComponentType::INVENTORY));
+		CDObjectsTable* objectsTable = CDClientManager::Instance().GetTable<CDObjectsTable>();
+
+		if (inv == nullptr) {
+			LOG("Failed to find inventory component!");
+			return;
+		}
+
+		const auto invItems = inv->GetInventory(eInventoryType::ITEMS);
+
+		// get the character items
+		std::vector<Item*> items;
+		for (const auto& pair : invItems->GetItems()) {
+			items.push_back(pair.second);
+		}
+
+		// sort by ItemType then by LOT
+		std::sort(items.begin(), items.end(), [](const Item* a, const Item* b) {
+			if (a->GetInfo().itemType == b->GetInfo().itemType) {
+				return a->GetLot() < b->GetLot();
+			}
+			return a->GetInfo().itemType < b->GetInfo().itemType;
+		});
+
+		std::stringstream message;
+		//MoveStack to new slot
+		for (int i = 0; i < items.size(); i++) {
+			const auto& item = items[i];
+			const CDObjects& object = objectsTable->GetByID(item->GetLot());
+
+			// only action for items that slot has changed
+			if (item->GetSlot() != i) {
+				inv->MoveStack(item, eInventoryType::ITEMS, i);
+
+				message << "Item name " << object.name << "\n" << "Moved to slot " << std::to_string(i) << "\n";
+				message << "-----------------------------------\n";
+			}
+		}
+
+		message << "Complete\n" << "Return to character select to apply change.";
+		ChatPackets::SendSystemMessage(sysAddr, GeneralUtils::ASCIIToUTF16(message.str()));
+
+		return;
+	}
+
 	if (chatCommand == "pvp") {
 		auto* character = entity->GetComponent<CharacterComponent>();
 
