@@ -175,6 +175,36 @@ void SlashCommandHandler::HandleChatCommand(const std::u16string& command, Entit
 	//HANDLE ALL NON GM SLASH COMMANDS RIGHT HERE!
 	//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+	if (chatCommand == "invlist") {
+		InventoryComponent* inv = static_cast<InventoryComponent*>(entity->GetComponent(eReplicaComponentType::INVENTORY));
+		CDObjectsTable* objectsTable = CDClientManager::Instance().GetTable<CDObjectsTable>();
+
+		if (inv == nullptr) {
+			LOG("Failed to find inventory component!");
+			return;
+		}
+
+		const auto invItems = inv->GetInventory(eInventoryType::ITEMS);
+
+		// get the character items
+		std::vector<Item*> items;
+		for (const auto& pair : invItems->GetItems()) {
+			items.push_back(pair.second);
+		}
+
+		std::stringstream message;
+		//log all item params to console
+		for (const auto& item : items) {
+			const CDObjects& object = objectsTable->GetByID(item->GetLot());
+			message << "Item ID: " << std::to_string(item->GetId()) << "\n"
+				<< "Slot: " << std::to_string(item->GetSlot()) << "\n"
+				<< "Item LOT: " << std::to_string(item->GetLot()) << "\n"
+				<< "Item Type: " << std::to_string(item->GetInfo().itemType) << "\n"
+				<< "Name: " << object.name << "\n"
+				<< "-----------------------------------\n";
+		}
+	}
+
 	if (chatCommand == "pvp") {
 		auto* character = entity->GetComponent<CharacterComponent>();
 
