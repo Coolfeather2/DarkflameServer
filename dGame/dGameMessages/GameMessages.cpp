@@ -1447,6 +1447,25 @@ void GameMessages::SendMoveInventoryBatch(Entity* entity, uint32_t stackCount, i
 	SEND_PACKET;
 }
 
+void GameMessages::SendMoveItemInInventory(Entity* entity, int32_t dstInv, const LWOOBJID& iObjID, int32_t slot) {
+	CBITSTREAM;
+	CMSGHEADER;
+
+	int32_t dstInvType = eInventoryType::ITEMS;
+	int32_t srcInvType = eInventoryType::ITEMS;
+	int32_t responseCode = 0; //unknown
+
+	bitStream.Write(dstInvType);
+	bitStream.Write(iObjID);
+	bitStream.Write(srcInvType);
+	bitStream.Write(responseCode);
+	bitStream.Write(slot);
+
+	auto sysAddr = entity->GetSystemAddress();
+
+	SEND_PACKET;
+}
+
 void GameMessages::SendMatchResponse(Entity* entity, const SystemAddress& sysAddr, int response) {
 	CBITSTREAM;
 	CMSGHEADER;

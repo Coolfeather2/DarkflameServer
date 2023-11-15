@@ -537,6 +537,8 @@ namespace GameMessages {
 	void SendRequestActivityEnter(LWOOBJID objectId, const SystemAddress& sysAddr, bool bStart, LWOOBJID userID);
 	void SendUseItemRequirementsResponse(LWOOBJID objectID, const SystemAddress& sysAddr, eUseItemResponse itemResponse);
 
+	void SendMoveItemInInventory(Entity* entity, int inv, const LWOOBJID& iObjID, int32_t slot);
+
 	// SG:
 
 	void SendSetShootingGalleryParams(LWOOBJID objectId, const SystemAddress& sysAddr,
